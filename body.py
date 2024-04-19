@@ -4,7 +4,7 @@ import numpy as np
 import mediapipe as mp
 
 
-video = cv2.VideoCapture('b.gif')
+video = cv2.VideoCapture('./polichinelo.gif')
 pose = mp.solutions.pose
 Pose = pose.Pose(min_tracking_confidence=0.5,min_detection_confidence=0.5)
 draw = mp.solutions.drawing_utils
