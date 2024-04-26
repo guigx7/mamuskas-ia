@@ -1,13 +1,18 @@
+
+
+
 import cv2
 import mediapipe as mp
 import math
 
 
-video = cv2.VideoCapture('./polichinelo.gif')
+video = cv2.VideoCapture('./Polichinelo.mp4')
+#video = cv2.VideoCapture('./Burpee.mp4')
 pose = mp.solutions.pose
 Pose = pose.Pose(min_tracking_confidence=0.5,min_detection_confidence=0.5)
 draw = mp.solutions.drawing_utils
-contador = 0
+contadorPolichinelo = 0
+contadoBurp = 0
 check = True
 
 while True:
@@ -33,23 +38,43 @@ while True:
         distMO = math.hypot(moDX-moEX,moDY-moEY)
         distPE = math.hypot(peDX-peEX,peDY-peEY)
 
+        distMOPE = math.hypot((peDX-moDX) - (peEX-moEX),(moDY-peEY) - (peDY-moEY) )
+
+
         print(f'maos {distMO} pes {distPE}')
-        # maos <=150 pes >=150
+        print(f'DISTANCIA MAO E PE {distMOPE}')
 
-        if check == True and distMO <=50 and distPE >=10:
-            contador +=1
+        # maos <=150 pes >=150 
+
+        #VIDEO MP4 distMO <=90 and distPE >=200
+
+        if check == True and distMO <=90 and distPE >=200:
+            contadorPolichinelo +=1
             check = False
-
+#
         if distMO >150 and distPE <150:
            check = True
 
-        texto = f'QTD {contador}'
-        cv2.rectangle(img,(20,240),(280,120),(255,0,0),-1)
-        cv2.putText(img,texto,(40,200),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),5)
 
+        if check == True and distMOPE >=1450 and distPE < 100:
+            contadoBurp +=1
+            check = False   
+
+        
+        if distMOPE < 150:
+           check = True
+
+
+        textoPolichinelo = f'QTD {contadorPolichinelo}'
+        cv2.rectangle(img,(20,240),(450,120),(255,0,0),-1)
+        cv2.putText(img,textoPolichinelo,(40,200),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),5)
+
+        textoBurp = f'QTD Burp {contadoBurp}'
+        cv2.rectangle(img,(20,300),(350,420),(255,0,0),-1)
+        cv2.putText(img,textoBurp,(40,200),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),5)
 
     cv2.imshow('Result', img)
-    cv2.waitKey(10)
+    cv2.waitKey(1)
 
 
 
