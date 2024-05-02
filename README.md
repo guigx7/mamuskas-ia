@@ -4,3 +4,4 @@ Projeto desenvolvido em python, solução de visão computacional em tempo real 
 
 
 VIDEOS DE PARAMETRO https://vimeo.com/247821792
+https://github.com/arnaldojr/cognitivecomputing
