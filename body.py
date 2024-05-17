@@ -1,12 +1,9 @@
-
-
-
 import cv2
 import mediapipe as mp
 import math
 
 
-video = cv2.VideoCapture('./Burpee.mp4')
+video = cv2.VideoCapture('./Polichinelo.mp4')
 #video = cv2.VideoCapture('./Burpee.mp4')
 #ideo = cv2.VideoCapture('./Flexao.mp4')
 pose = mp.solutions.pose
@@ -21,31 +18,6 @@ ic_burp = False
 ic_flexao = False
 
 
-
-#def polichinelo(check):
-#        if check == True and distMO <=90 and distPE >=200:
-#            contadorPolichinelo +=1
-#            check = False
-#
-#        if distMO >150 and distPE <150:
-#           check = True
-#    
-#def burp(check):
-#        if check == True and distMOPE >=1450 and distPE < 100:
-#            contadoBurp +=1
-#            check = False   
-#      
-#        if distMOPE < 150:
-#           check = True
-#
-#def flexao(check):
-#        if check == True and distOmbroMao < 210 and distMOPE <=130:
-#            contadoFlexao +=1
-#            check = False
-#
-#        if  distOmbroMao > 300:
-#           check = True
-#
 
 def polichinelo (ic_polichinelo, contadorPolichinelo, distMO, distPE):
         if ic_polichinelo == True and distMO <=90 and distPE >=200:
@@ -70,9 +42,16 @@ def burp ( ic_burp, contadoBurp, distMOPE, distPE, ic_flexao):
 
         return ic_burp, contadoBurp, ic_flexao
 
+def flexao(ic_flexao, distOmbroMao, distMOPE, contadoFlexao):
+       if ic_flexao == True and distOmbroMao <= 208 and distMOPE <=116 and distMOPE > 110:
+           contadoFlexao +=1
+           ic_flexao = False
+           print(distMOPE)
 
+       if distOmbroMao > 300:
+           ic_flexao = True
 
-
+       return ic_flexao, contadoFlexao
 
 while True:
     success,img = video.read()
@@ -89,12 +68,16 @@ while True:
     if points:
         peDY = int(points.landmark[pose.PoseLandmark.RIGHT_FOOT_INDEX].y*h)
         peDX = int(points.landmark[pose.PoseLandmark.RIGHT_FOOT_INDEX].x*w)
+
         peEY = int(points.landmark[pose.PoseLandmark.LEFT_FOOT_INDEX].y*h)
         peEX = int(points.landmark[pose.PoseLandmark.LEFT_FOOT_INDEX].x*w)
+
         moDY = int(points.landmark[pose.PoseLandmark.RIGHT_INDEX].y*h)
         moDX = int(points.landmark[pose.PoseLandmark.RIGHT_INDEX].x*w)
+
         moEY = int(points.landmark[pose.PoseLandmark.LEFT_INDEX].y*h)
         moEX = int(points.landmark[pose.PoseLandmark.LEFT_INDEX].x*w)
+
         omDY = int(points.landmark[pose.PoseLandmark.RIGHT_SHOULDER].y*h)
         omDX = int(points.landmark[pose.PoseLandmark.RIGHT_SHOULDER].x*w)
 
@@ -105,34 +88,20 @@ while True:
 
         distOmbroMao = math.hypot((omDY - omDX) - ((moDX-moDY) - 110 ))
 
-        #print(f'maos {distMO} pes {distPE}')
-        #print(f'DISTANCIA MAO E PE {distMOPE}')
-        #print(f'ombro {omDY} , {omDX} , {distOmbroMao}')
-        #print(f'ombro {distOmbroMao}  , MAO {(moEY-moEX - 110)}  ')
-        #print(f'ombro {distOmbroMao}    ')
+        
         
         ic_polichinelo, contadorPolichinelo = polichinelo(ic_polichinelo, contadorPolichinelo, distMO, distPE)
 
         ic_burp, contadoBurp,ic_flexao = burp(ic_burp, contadoBurp, distMOPE, distPE, ic_flexao)
 
-        print(distOmbroMao, distMOPE, distPE)
+        ic_flexao, contadoFlexao = flexao(ic_flexao, distOmbroMao, distMOPE, contadoFlexao )
         
-        if ic_flexao == True and distOmbroMao < 210 and distMOPE <=130:
-                print('contou')
-                contadoFlexao +=1
-                ic_flexao = False
-
-        if  distOmbroMao > 300:
-                ic_flexao = True
-
-        #cv2.rectangle(img,(margin left,altura),(largura,margin top),(255,0,0),-1)
-        #cv2.putText(img,textoPolichinelo,(margin left,margin top)
-
-
-        textoGenerico = f'QTD flexão {contadoFlexao}'
-        cv2.rectangle(img,(20,240),(650,120),(255,0,0),-1)
-        cv2.putText(img,textoGenerico,(40,200),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),5)
-
+        
+        
+        if (contadoFlexao >= 1):
+                textoFlexao = f'QTD flexão {contadoFlexao}'
+                cv2.rectangle(img,(20,240),(650,120),(255,0,0),-1)
+                cv2.putText(img,textoFlexao,(40,200),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),5)
 
         if (contadorPolichinelo >= 1):
                 textoPolichinelo = f'QTD Polichinelo {contadorPolichinelo}'
@@ -141,7 +110,7 @@ while True:
 
         if (contadoBurp >= 1):
                 textoBurp = f'QTD Burp {contadoBurp}'
-                cv2.rectangle(img,(20,300),(450,400),(255,0,0),-1)
+                cv2.rectangle(img,(20,240),(650,120),(255,0,0),-1)
                 cv2.putText(img,textoBurp,(40,370),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),5)
 
         
