@@ -3,7 +3,7 @@ import mediapipe as mp
 import math
 
 
-video = cv2.VideoCapture('./Burpee.mp4')
+video = cv2.VideoCapture('./Flexao.mp4')
 #video = cv2.VideoCapture('./Burpee.mp4')
 #ideo = cv2.VideoCapture('./Flexao.mp4')
 pose = mp.solutions.pose
@@ -11,7 +11,7 @@ Pose = pose.Pose(min_tracking_confidence=0.5,min_detection_confidence=0.5)
 draw = mp.solutions.drawing_utils
 contadorPolichinelo = 0
 contadoBurp = 0
-contadoFlexao = 0
+contadorFlexao = 0
 check = False
 ic_polichinelo = False
 ic_burp = False
@@ -42,30 +42,18 @@ def burp ( ic_burp, contadoBurp, distMOPE, distPE, ic_flexao):
 
         return ic_burp, contadoBurp, ic_flexao
 
-def flexao(ic_flexao, distOmbroMao, distMOPE, contadoFlexao):
+def flexao(ic_flexao, distOmbroMao, distMOPE, contadorFlexao):
        if ic_flexao == True and distOmbroMao <= 208 and distMOPE <=116 and distMOPE > 110:
-           contadoFlexao +=1
+           contadorFlexao +=1
            ic_flexao = False
            print(distMOPE)
 
        if distOmbroMao > 300:
            ic_flexao = True
 
-       return ic_flexao, contadoFlexao
+       return ic_flexao, contadorFlexao
 
-while True:
-    success,img = video.read()
-    videoRGB = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-    results = Pose.process(videoRGB)
-    points = results.pose_landmarks
-    draw.draw_landmarks(img,points,pose.POSE_CONNECTIONS)
-    points = results.pose_landmarks
-    draw.draw_landmarks(img,points,pose.POSE_CONNECTIONS)
-    h,w,_ = img.shape
-        
-
-
-    if points:
+def countDist():
         peDY = int(points.landmark[pose.PoseLandmark.RIGHT_FOOT_INDEX].y*h)
         peDX = int(points.landmark[pose.PoseLandmark.RIGHT_FOOT_INDEX].x*w)
 
@@ -88,18 +76,11 @@ while True:
 
         distOmbroMao = math.hypot((omDY - omDX) - ((moDX-moDY) - 110 ))
 
+        return distMO, distPE, distMOPE, distOmbroMao
 
-        
-        ic_polichinelo, contadorPolichinelo = polichinelo(ic_polichinelo, contadorPolichinelo, distMO, distPE)
-
-        ic_burp, contadoBurp,ic_flexao = burp(ic_burp, contadoBurp, distMOPE, distPE, ic_flexao)
-
-        ic_flexao, contadoFlexao = flexao(ic_flexao, distOmbroMao, distMOPE, contadoFlexao )
-        
-        
-        
-        if (contadoFlexao >= 1):
-                textoFlexao = f'QTD flexão {contadoFlexao}'
+def exibirCounter(contadorFlexao, contadorPolichinelo, contadoBurp):
+        if (contadorFlexao >= 1):
+                textoFlexao = f'QTD flexão {contadorFlexao}'
                 cv2.rectangle(img,(20,240),(650,120),(255,0,0),-1)
                 cv2.putText(img,textoFlexao,(40,200),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),5)
 
@@ -113,6 +94,27 @@ while True:
                 cv2.rectangle(img,(20,240),(650,120),(255,0,0),-1)
                 cv2.putText(img,textoBurp,(40,200),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),5)
 
+
+while True:
+    success,img = video.read()
+    videoRGB = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+    results = Pose.process(videoRGB)
+    points = results.pose_landmarks
+    draw.draw_landmarks(img,points,pose.POSE_CONNECTIONS)
+    points = results.pose_landmarks
+    draw.draw_landmarks(img,points,pose.POSE_CONNECTIONS)
+    h,w,_ = img.shape
+        
+    if points:
+        distMO, distPE, distMOPE, distOmbroMao = countDist()
+        
+        ic_polichinelo, contadorPolichinelo = polichinelo(ic_polichinelo, contadorPolichinelo, distMO, distPE)
+
+        ic_burp, contadoBurp,ic_flexao = burp(ic_burp, contadoBurp, distMOPE, distPE, ic_flexao)
+
+        ic_flexao, contadorFlexao = flexao(ic_flexao, distOmbroMao, distMOPE, contadorFlexao )
+
+        exibirCounter(contadorFlexao, contadoBurp, contadorPolichinelo)
         
     cv2.imshow('Result', img)
     cv2.waitKey(1)
