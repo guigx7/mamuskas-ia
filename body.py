@@ -3,7 +3,7 @@ import mediapipe as mp
 import math
 
 
-video = cv2.VideoCapture('./Polichinelo.mp4')
+video = cv2.VideoCapture('./Burpee.mp4')
 #video = cv2.VideoCapture('./Burpee.mp4')
 #ideo = cv2.VideoCapture('./Flexao.mp4')
 pose = mp.solutions.pose
@@ -88,7 +88,7 @@ while True:
 
         distOmbroMao = math.hypot((omDY - omDX) - ((moDX-moDY) - 110 ))
 
-        
+
         
         ic_polichinelo, contadorPolichinelo = polichinelo(ic_polichinelo, contadorPolichinelo, distMO, distPE)
 
@@ -111,7 +111,7 @@ while True:
         if (contadoBurp >= 1):
                 textoBurp = f'QTD Burp {contadoBurp}'
                 cv2.rectangle(img,(20,240),(650,120),(255,0,0),-1)
-                cv2.putText(img,textoBurp,(40,370),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),5)
+                cv2.putText(img,textoBurp,(40,200),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),5)
 
         
     cv2.imshow('Result', img)
