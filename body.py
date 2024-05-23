@@ -2,8 +2,8 @@ import cv2
 import mediapipe as mp
 import math
 
-
-video = cv2.VideoCapture('./Burpee.mp4')
+video = cv2.VideoCapture(0)
+# video = cv2.VideoCapture('./Burpee.mp4')
 # video = cv2.VideoCapture('./Burpee.mp4')
 pose = mp.solutions.pose
 Pose = pose.Pose(min_tracking_confidence=0.5,min_detection_confidence=0.5)
@@ -77,21 +77,64 @@ def countDist():
 
         return distMO, distPE, distMOPE, distOmbroMao
 
+
+
 def exibirCounter(contadorFlexao, contadorPolichinelo, contadoBurp):
-        if (contadorFlexao >= 1):
-                textoFlexao = f'QTD flexão {contadorFlexao}'
-                cv2.rectangle(frame,(20,240),(650,120),(255,0,0),-1)
-                cv2.putText(frame,textoFlexao,(40,200),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),5)
+    # Definir tamanho fixo e pequeno para a fonte e a caixa
+    font_scale = 0.5
+    font_thickness = 1
+    box_thickness = 1  # Alterando a espessura da borda da caixa
+    blue_color = (255, 0, 0)  # Definindo a cor azul
+    margin = 10  # Margem dos cantos
 
-        if (contadorPolichinelo >= 1):
-                textoPolichinelo = f'QTD Polichinelo {contadorPolichinelo}'
-                cv2.rectangle(frame,(20,240),(650,120),(255,0,0),-1)
-                cv2.putText(frame,textoPolichinelo,(40,200),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),5)
+    if contadorFlexao >= 1:
+        textoFlexao = f'Flexões: {contadorFlexao}'
+        # Determinar a altura do texto
+        (text_width, text_height), _ = cv2.getTextSize(textoFlexao, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness)
+        box_height = text_height + 20  # Definir a altura da caixa com uma pequena margem
 
-        if (contadoBurp >= 1):
-                textoBurp = f'QTD Burp {contadoBurp}'
-                cv2.rectangle(frame,(20,240),(650,120),(255,0,0),-1)
-                cv2.putText(frame,textoBurp,(40,200),cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255),5)
+        # Determinar as coordenadas para a caixa
+        x1, y1 = margin, margin
+        x2, y2 = 200 + margin, box_height + margin
+        # Desenhar fundo azul
+        cv2.rectangle(frame, (x1, y1), (x2, y2), blue_color, cv2.FILLED)
+        # Desenhar borda azul
+        cv2.rectangle(frame, (x1, y1), (x2, y2), blue_color, box_thickness)
+        cv2.putText(frame, textoFlexao, (x1 + 10, y1 + 20), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), font_thickness)
+
+    if contadorPolichinelo >= 1:
+        textoPolichinelo = f'Polichinelos: {contadorPolichinelo}'
+        # Determinar a altura do texto
+        (text_width, text_height), _ = cv2.getTextSize(textoPolichinelo, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness)
+        box_height = text_height + 20  # Definir a altura da caixa com uma pequena margem
+
+        # Determinar as coordenadas para a caixa
+        x1, y1 = margin, 200 + margin
+        x2, y2 = 200 + margin,  box_height + 200 + margin
+        # Desenhar fundo azul
+        cv2.rectangle(frame, (x1, y1), (x2, y2), blue_color, cv2.FILLED)
+        # Desenhar borda azul
+        cv2.rectangle(frame, (x1, y1), (x2, y2), blue_color, box_thickness)
+        cv2.putText(frame, textoPolichinelo, (x1 + 10, y1 + 20), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), font_thickness)
+
+    if contadoBurp >= 1:
+        textoBurp = f'Burpees: {contadoBurp}'
+        # Determinar a altura do texto
+        (text_width, text_height), _ = cv2.getTextSize(textoBurp, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness)
+        box_height = text_height + 20  # Definir a altura da caixa com uma pequena margem
+
+        # Determinar as coordenadas para a caixa
+        x1, y1 = margin, 390 + margin
+        x2, y2 = 200 + margin, box_height + 390 + margin
+        # Desenhar fundo azul
+        cv2.rectangle(frame, (x1, y1), (x2, y2), blue_color, cv2.FILLED)
+        # Desenhar borda azul
+        cv2.rectangle(frame, (x1, y1), (x2, y2), blue_color, box_thickness)
+        cv2.putText(frame, textoBurp, (x1 + 10, y1 + 20), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), font_thickness)
+
+
+
+
 
 
 while True:
@@ -114,6 +157,10 @@ while True:
         ic_flexao, contadorFlexao = flexao(ic_flexao, distOmbroMao, distMOPE, contadorFlexao )
 
         exibirCounter(contadorFlexao, contadorPolichinelo, contadoBurp )
+
+
+        frame = cv2.resize(frame, (1280, 720))
+
         
     cv2.imshow('Result', frame)
     cv2.waitKey(1)
